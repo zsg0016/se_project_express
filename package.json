@@ -1,0 +1,41 @@
+{
+  "name": "wtwr",
+  "version": "1.0.0",
+  "description": "App that tells user what to wear based on the current weather in their location.",
+  "keywords": [
+    "what",
+    "to",
+    "wear"
+  ],
+  "homepage": "https://github.com/zsg0016/se_project_express#readme",
+  "bugs": {
+    "url": "https://github.com/zsg0016/se_project_express/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zsg0016/se_project_express.git"
+  },
+  "license": "ISC",
+  "author": "Zachary Guidry",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint .",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "express": "^4.22.1",
+    "mongoose": "^8.23.0",
+    "validator": "^13.15.35"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.10.2",
+    "eslint-plugin-import": "^2.32.0",
+    "nodemon": "^3.1.14",
+    "prettier": "^2.8.8"
+  }
+}
