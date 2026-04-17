@@ -1,4 +1,5 @@
 const User = require("../models/user");
+
 const getUsers = (req, res) => {
   User.find({})
     .orFail()
@@ -20,7 +21,8 @@ const getUser = (req, res) => {
       console.error(error);
       if (error.name === "DocumentNotFoundError") {
         return res.status(404).send({ message: "User not found" });
-      } else if (error.name === "CastError") {
+      }
+      if (error.name === "CastError") {
         return res.status(400).send({ message: error.message });
       }
       return res.status(500).send({ message: error.message });
