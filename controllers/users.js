@@ -1,12 +1,12 @@
 const User = require("../models/user");
+const errors = require("../utils/errors");
 
 const getUsers = (req, res) => {
   User.find({})
-    .orFail()
     .then((users) => res.status(200).send(users))
     .catch((error) => {
       console.error(error);
-      return res.status(500).send({ message: error.message });
+      return res.status(500).send({ message: errors.USERS_NOT_FOUND });
     });
 };
 
@@ -25,7 +25,7 @@ const getUser = (req, res) => {
       if (error.name === "CastError") {
         return res.status(400).send({ message: error.message });
       }
-      return res.status(500).send({ message: error.message });
+      return res.status(500).send({ message: errors.USER_NOT_FOUND });
     });
 };
 
@@ -38,12 +38,15 @@ const createUser = (req, res) => {
       if (error.name === "ValidationError") {
         return res.status(400).send({ message: error.message });
       }
-      if (name.length < 2 || name.length > 30) {
-        return res.status(400).send({
-          message: "Item name must be between 2 and 30 characters long",
-        });
+      if (name) {
+        if (name.length < 2 || name.length > 30) {
+          return res.status(400).send({
+            message: "User name must be between 2 and 30 characters long",
+          });
+        }
       }
-      return res.status(500).send({ message: error.message });
+
+      return res.status(500).send({ message: errors.USER_NOT_CREATED });
     });
 };
 

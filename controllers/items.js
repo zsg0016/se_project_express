@@ -1,19 +1,17 @@
 const Item = require("../models/item");
+const { errors } = require("../utils/errors");
 
 const getItems = (req, res) => {
   Item.find({})
     .then((items) => res.status(200).send(items))
     .catch((error) => {
       console.error(error);
-      return res.status(500).send({ message: error.message });
+      return res.status(500).send({ message: errors.ITEMS_NOT_FOUND });
     });
 };
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
-  module.exports.createClothingItem = () => {
-    console.log(req.user._id); // _id will become accessible
-  };
   Item.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => res.status(201).send(item))
     .catch((error) => {
@@ -21,12 +19,14 @@ const createItem = (req, res) => {
       if (error.name === "ValidationError") {
         return res.status(400).send({ message: error.message });
       }
-      if (name.length < 2 || name.length > 30) {
-        return res.status(400).send({
-          message: "Item name must be between 2 and 30 characters long",
-        });
+      if (name) {
+        if (name.length < 2 || name.length > 30) {
+          return res.status(400).send({
+            message: "Item name must be between 2 and 30 characters long",
+          });
+        }
       }
-      return res.status(500).send({ message: error.message });
+      return res.status(500).send({ message: errors.ITEM_NOT_CREATED });
     });
 };
 
@@ -43,7 +43,7 @@ const deleteItem = (req, res) => {
       if (error.name === "CastError") {
         return res.status(400).send({ message: error.message });
       }
-      return res.status(500).send({ message: error.message });
+      return res.status(500).send({ message: errors.ITEMS_NOT_DELETED });
     });
 };
 
@@ -66,7 +66,7 @@ const likeItem = (req, res) => {
       if (error.name === "CastError") {
         return res.status(400).send({ message: error.message });
       }
-      return res.status(500).send({ message: error.message });
+      return res.status(500).send({ message: errors.ITEM_LIKE_ERROR });
     });
 };
 
@@ -89,7 +89,7 @@ const dislikeItem = (req, res) => {
       if (error.name === "CastError") {
         return res.status(400).send({ message: error.message });
       }
-      return res.status(500).send({ message: error.message });
+      return res.status(500).send({ message: errors.ITEM_DISLIKE_ERROR });
     });
 };
 
