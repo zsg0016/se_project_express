@@ -20,10 +20,10 @@ const getUser = (req, res) => {
     .catch((error) => {
       console.error(error);
       if (error.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: "User not found" });
+        return res.status(404).send({ message: errors.USER_NOT_FOUND });
       }
       if (error.name === "CastError") {
-        return res.status(400).send({ message: error.message });
+        return res.status(400).send({ message: errors.INVALID_USER_ID });
       }
       return res.status(500).send({ message: errors.USER_NOT_FOUND });
     });
@@ -36,12 +36,12 @@ const createUser = (req, res) => {
     .catch((error) => {
       console.error(error);
       if (error.name === "ValidationError") {
-        return res.status(400).send({ message: error.message });
+        return res.status(400).send({ message: errors.USER_VALIDATION_ERROR });
       }
       if (name) {
         if (name.length < 2 || name.length > 30) {
           return res.status(400).send({
-            message: "User name must be between 2 and 30 characters long",
+            message: errors.NAME_ERROR,
           });
         }
       }

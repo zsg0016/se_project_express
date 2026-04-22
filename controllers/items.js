@@ -17,12 +17,12 @@ const createItem = (req, res) => {
     .catch((error) => {
       console.error(error);
       if (error.name === "ValidationError") {
-        return res.status(400).send({ message: error.message });
+        return res.status(400).send({ message: errors.ITEM_VALIDATION_ERROR });
       }
       if (name) {
         if (name.length < 2 || name.length > 30) {
           return res.status(400).send({
-            message: "Item name must be between 2 and 30 characters long",
+            message: errors.NAME_ERROR,
           });
         }
       }
@@ -34,16 +34,16 @@ const deleteItem = (req, res) => {
   const { itemId } = req.params;
   Item.findByIdAndDelete(itemId)
     .orFail()
-    .then(() => res.status(200).send({ message: "Item deleted successfully" }))
+    .then(() => res.status(200).send({ message: errors.ITEM_DELETED }))
     .catch((error) => {
       console.error(error);
       if (error.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: "Item not found" });
+        return res.status(404).send({ message: errors.ITEM_NOT_FOUND });
       }
       if (error.name === "CastError") {
-        return res.status(400).send({ message: error.message });
+        return res.status(400).send({ message: errors.INVALID_ITEM_ID });
       }
-      return res.status(500).send({ message: errors.ITEMS_NOT_DELETED });
+      return res.status(500).send({ message: errors.ITEM_NOT_DELETED });
     });
 };
 
@@ -61,10 +61,10 @@ const likeItem = (req, res) => {
     .catch((error) => {
       console.error(error);
       if (error.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: "Item not found" });
+        return res.status(404).send({ message: errors.ITEM_NOT_FOUND });
       }
       if (error.name === "CastError") {
-        return res.status(400).send({ message: error.message });
+        return res.status(400).send({ message: errors.INVALID_ITEM_ID });
       }
       return res.status(500).send({ message: errors.ITEM_LIKE_ERROR });
     });
@@ -84,10 +84,10 @@ const dislikeItem = (req, res) => {
     .catch((error) => {
       console.error(error);
       if (error.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: "Item not found" });
+        return res.status(404).send({ message: errors.ITEM_NOT_FOUND });
       }
       if (error.name === "CastError") {
-        return res.status(400).send({ message: error.message });
+        return res.status(400).send({ message: errors.INVALID_ITEM_ID });
       }
       return res.status(500).send({ message: errors.ITEM_DISLIKE_ERROR });
     });

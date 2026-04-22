@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const errors = require("../utils/errors");
 
 const clothingItemSchema = new mongoose.Schema({
   name: {
@@ -20,7 +21,7 @@ const clothingItemSchema = new mongoose.Schema({
       validator(value) {
         return validator.isURL(value);
       },
-      message: "You must enter a valid URL",
+      message: errors.INVALID_URL,
     },
   },
   owner: {
