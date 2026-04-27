@@ -1,32 +1,39 @@
 const Item = require("../models/item");
 const { errors } = require("../utils/errors");
+const { HTTP_STATUS_CODES } = require("../utils/errors");
 
 const getItems = (req, res) => {
   Item.find({})
-    .then((items) => res.status(200).send(items))
+    .then((items) => res.status(HTTP_STATUS_CODES.OK).send(items))
     .catch((error) => {
       console.error(error);
-      return res.status(500).send({ message: errors.ITEMS_NOT_FOUND });
+      return res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .send({ message: errors.ITEMS_NOT_FOUND });
     });
 };
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
   Item.create({ name, weather, imageUrl, owner: req.user._id })
-    .then((item) => res.status(201).send(item))
+    .then((item) => res.status(HTTP_STATUS_CODES.CREATED).send(item))
     .catch((error) => {
       console.error(error);
       if (error.name === "ValidationError") {
-        return res.status(400).send({ message: errors.ITEM_VALIDATION_ERROR });
+        return res
+          .status(HTTP_STATUS_CODES.BAD_REQUEST)
+          .send({ message: errors.ITEM_VALIDATION_ERROR });
       }
       if (name) {
         if (name.length < 2 || name.length > 30) {
-          return res.status(400).send({
+          return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
             message: errors.NAME_ERROR,
           });
         }
       }
-      return res.status(500).send({ message: errors.ITEM_NOT_CREATED });
+      return res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .send({ message: errors.ITEM_NOT_CREATED });
     });
 };
 
@@ -34,16 +41,24 @@ const deleteItem = (req, res) => {
   const { itemId } = req.params;
   Item.findByIdAndDelete(itemId)
     .orFail()
-    .then(() => res.status(200).send({ message: errors.ITEM_DELETED }))
+    .then(() =>
+      res.status(HTTP_STATUS_CODES.OK).send({ message: errors.ITEM_DELETED })
+    )
     .catch((error) => {
       console.error(error);
       if (error.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: errors.ITEM_NOT_FOUND });
+        return res
+          .status(HTTP_STATUS_CODES.NOT_FOUND)
+          .send({ message: errors.ITEM_NOT_FOUND });
       }
       if (error.name === "CastError") {
-        return res.status(400).send({ message: errors.INVALID_ITEM_ID });
+        return res
+          .status(HTTP_STATUS_CODES.BAD_REQUEST)
+          .send({ message: errors.INVALID_ITEM_ID });
       }
-      return res.status(500).send({ message: errors.ITEM_NOT_DELETED });
+      return res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .send({ message: errors.ITEM_NOT_DELETED });
     });
 };
 
@@ -56,17 +71,23 @@ const likeItem = (req, res) => {
   )
     .orFail()
     .then((item) => {
-      res.status(200).send(item);
+      res.status(HTTP_STATUS_CODES.OK).send(item);
     })
     .catch((error) => {
       console.error(error);
       if (error.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: errors.ITEM_NOT_FOUND });
+        return res
+          .status(HTTP_STATUS_CODES.NOT_FOUND)
+          .send({ message: errors.ITEM_NOT_FOUND });
       }
       if (error.name === "CastError") {
-        return res.status(400).send({ message: errors.INVALID_ITEM_ID });
+        return res
+          .status(HTTP_STATUS_CODES.BAD_REQUEST)
+          .send({ message: errors.INVALID_ITEM_ID });
       }
-      return res.status(500).send({ message: errors.ITEM_LIKE_ERROR });
+      return res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .send({ message: errors.ITEM_LIKE_ERROR });
     });
 };
 
@@ -79,17 +100,23 @@ const dislikeItem = (req, res) => {
   )
     .orFail()
     .then((item) => {
-      res.status(200).send(item);
+      res.status(HTTP_STATUS_CODES.OK).send(item);
     })
     .catch((error) => {
       console.error(error);
       if (error.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: errors.ITEM_NOT_FOUND });
+        return res
+          .status(HTTP_STATUS_CODES.NOT_FOUND)
+          .send({ message: errors.ITEM_NOT_FOUND });
       }
       if (error.name === "CastError") {
-        return res.status(400).send({ message: errors.INVALID_ITEM_ID });
+        return res
+          .status(HTTP_STATUS_CODES.BAD_REQUEST)
+          .send({ message: errors.INVALID_ITEM_ID });
       }
-      return res.status(500).send({ message: errors.ITEM_DISLIKE_ERROR });
+      return res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .send({ message: errors.ITEM_DISLIKE_ERROR });
     });
 };
 

@@ -1,12 +1,15 @@
 const User = require("../models/user");
-const errors = require("../utils/errors");
+const { errors } = require("../utils/errors");
+const { HTTP_STATUS_CODES } = require("../utils/errors");
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
+    .then((users) => res.status(HTTP_STATUS_CODES.OK).send(users))
     .catch((error) => {
       console.error(error);
-      return res.status(500).send({ message: errors.USERS_NOT_FOUND });
+      return res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .send({ message: errors.USERS_NOT_FOUND });
     });
 };
 
@@ -15,38 +18,48 @@ const getUser = (req, res) => {
   User.findById(userId)
     .orFail()
     .then((user) => {
-      res.status(200).send(user);
+      res.status(HTTP_STATUS_CODES.OK).send(user);
     })
     .catch((error) => {
       console.error(error);
       if (error.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: errors.USER_NOT_FOUND });
+        return res
+          .status(HTTP_STATUS_CODES.NOT_FOUND)
+          .send({ message: errors.USER_NOT_FOUND });
       }
       if (error.name === "CastError") {
-        return res.status(400).send({ message: errors.INVALID_USER_ID });
+        return res
+          .status(HTTP_STATUS_CODES.BAD_REQUEST)
+          .send({ message: errors.INVALID_USER_ID });
       }
-      return res.status(500).send({ message: errors.USER_NOT_FOUND });
+      return res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .send({ message: errors.USER_NOT_FOUND });
     });
 };
 
 const createUser = (req, res) => {
   const { name, avatar } = req.body;
   User.create({ name, avatar })
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(HTTP_STATUS_CODES.CREATED).send(user))
     .catch((error) => {
       console.error(error);
       if (error.name === "ValidationError") {
-        return res.status(400).send({ message: errors.USER_VALIDATION_ERROR });
+        return res
+          .status(HTTP_STATUS_CODES.BAD_REQUEST)
+          .send({ message: errors.USER_VALIDATION_ERROR });
       }
       if (name) {
         if (name.length < 2 || name.length > 30) {
-          return res.status(400).send({
+          return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
             message: errors.NAME_ERROR,
           });
         }
       }
 
-      return res.status(500).send({ message: errors.USER_NOT_CREATED });
+      return res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .send({ message: errors.USER_NOT_CREATED });
     });
 };
 

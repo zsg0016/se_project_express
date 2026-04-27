@@ -1,4 +1,4 @@
-module.exports = errors = {
+const errors = {
   RESOURCE_NOT_FOUND: "Requested resource not found",
   INVALID_URL: "You must enter a valid URL",
   NAME_ERROR: "User name must be between 2 and 30 characters long",
@@ -17,4 +17,20 @@ module.exports = errors = {
   ITEM_DELETED: "Item deleted successfully",
   ITEM_LIKE_ERROR: "Could not like item",
   ITEM_DISLIKE_ERROR: "Could not dislike item",
+};
+
+const HTTP_STATUS_CODES = {
+  OK: 200,
+  CREATED: 201,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  INTERNAL_SERVER_ERROR: 500,
+};
+
+module.exports = {
+  errors,
+  HTTP_STATUS_CODES,
 };
