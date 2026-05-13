@@ -15,8 +15,15 @@ const errors = {
   ITEM_NOT_FOUND: "Item not found",
   ITEM_NOT_DELETED: "Item could not be deleted",
   ITEM_DELETED: "Item deleted successfully",
+  ITEM_DELETE_FORBIDDEN: "You do not have permission to delete this item",
   ITEM_LIKE_ERROR: "Could not like item",
   ITEM_DISLIKE_ERROR: "Could not dislike item",
+  INVALID_ITEM_ID: "Username or Email is incorrect",
+  INVALID_EMAIL: "Invalid email address",
+  INVALID_PASSWORD: "Invalid password",
+  DUPLICATE_EMAIL: "Email already exists",
+  LOGIN_FAILED: "Login failed: Invalid email or password",
+  UNAUTHORIZED: "Authorization required",
 };
 
 const HTTP_STATUS_CODES = {

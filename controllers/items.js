@@ -38,6 +38,11 @@ const createItem = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
+  if (req.user._id.toString() !== req.item.owner.toString()) {
+    return res
+      .status(HTTP_STATUS_CODES.FORBIDDEN)
+      .send({ message: errors.ITEM_DELETE_FORBIDDEN });
+  }
   const { itemId } = req.params;
   Item.findByIdAndDelete(itemId)
     .orFail()
