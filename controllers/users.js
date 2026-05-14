@@ -1,7 +1,7 @@
+const bycrypt = require("bcryptjs");
 const User = require("../models/user");
 const { errors } = require("../utils/errors");
 const { HTTP_STATUS_CODES } = require("../utils/errors");
-const bycrypt = require("bcryptjs");
 
 const getUsers = (req, res) => {
   User.find({})
@@ -42,7 +42,7 @@ const getCurrentUser = (req, res) => {
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
   console.log("Request body:", req.body);
-  User.bycrypt
+  bycrypt
     .hash(password, 10)
     .then((hashedPassword) => {
       User.create({
