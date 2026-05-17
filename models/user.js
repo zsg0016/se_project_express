@@ -3,7 +3,7 @@ const validator = require("validator");
 const { errors } = require("../utils/errors");
 const jwt = require("jsonwebtoken");
 const bycrypt = require("bcryptjs");
-const JWT_SECRET = require("../utils/config");
+const { JWT_SECRET } = require("../utils/config");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.static.findUserByCredentials = function (email, password) {
+userSchema.statics.findUserByCredentials = function (email, password) {
   return this.findOne({ email })
     .select("+password")
     .then((user) => {
@@ -55,7 +55,6 @@ userSchema.static.findUserByCredentials = function (email, password) {
         const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
           expiresIn: "7d",
         });
-        console.log("Generated JWT Token:", token);
         return token;
       });
     })

@@ -4,7 +4,12 @@ const userRouter = require("./users");
 const itemRouter = require("./items");
 const { errors } = require("../utils/errors");
 const { HTTP_STATUS_CODES } = require("../utils/errors");
+const { createUser, login } = require("../controllers/users");
+const { getItems } = require("../controllers/items");
 
+router.post("/signin", login);
+router.post("/signup", createUser);
+router.get("/items/", getItems);
 router.use("/users", userRouter);
 router.use("/items", itemRouter);
 

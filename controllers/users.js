@@ -15,7 +15,7 @@ const getUsers = (req, res) => {
 };
 
 const getCurrentUser = (req, res) => {
-  const { userId } = req.user._id;
+  const userId = req.user && (req.user._id ?? req.user);
   User.findById(userId)
     .orFail()
     .then((user) => {
@@ -45,7 +45,7 @@ const createUser = (req, res) => {
   bycrypt
     .hash(password, 10)
     .then((hashedPassword) => {
-      User.create({
+      return User.create({
         name: name,
         avatar: avatar,
         email: email,
@@ -53,17 +53,21 @@ const createUser = (req, res) => {
       });
     })
     .then((user) => {
-      const [password, ...userWithoutPassword] = user.toObject();
-      res.status(HTTP_STATUS_CODES.CREATED).send(userWithoutPassword);
+      const userObj = user.toObject();
+      delete userObj.password;
+      res.status(HTTP_STATUS_CODES.CREATED).send(userObj);
     })
     .catch((error) => {
       console.error(error);
-      if (name) {
-        if (name.length < 2 || name.length > 30) {
-          return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
-            message: errors.NAME_ERROR,
-          });
-        }
+      if (!email || !password) {
+        return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
+          message: errors.MISSING_FIELDS,
+        });
+      }
+      if (error.message === errors.NAME_ERROR) {
+        return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
+          message: errors.NAME_ERROR,
+        });
       }
       if (error.code === 11000) {
         return res
@@ -71,6 +75,11 @@ const createUser = (req, res) => {
           .send({ message: errors.DUPLICATE_EMAIL });
       }
       if (error.name === "ValidationError") {
+        if (error.errors && error.errors.name) {
+          return res
+            .status(HTTP_STATUS_CODES.BAD_REQUEST)
+            .send({ message: errors.NAME_ERROR });
+        }
         return res
           .status(HTTP_STATUS_CODES.BAD_REQUEST)
           .send({ message: errors.USER_VALIDATION_ERROR });
@@ -90,6 +99,11 @@ const login = (req, res) => {
     })
     .catch((error) => {
       console.error(error);
+      if (!email || !password) {
+        return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
+          message: errors.MISSING_FIELDS,
+        });
+      }
       return res
         .status(HTTP_STATUS_CODES.UNAUTHORIZED)
         .send({ message: errors.LOGIN_FAILED });
@@ -98,7 +112,7 @@ const login = (req, res) => {
 
 const updateUser = (req, res) => {
   const { name, avatar } = req.body;
-  const { userId } = req.user;
+  const userId = req.user && (req.user._id ?? req.user);
   User.findByIdAndUpdate(
     userId,
     { name, avatar },

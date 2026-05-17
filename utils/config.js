@@ -1,4 +1,3 @@
-
 module.exports = {
-  JWT_SECRET: require('crypto').randomBytes(64).toString('hex'),
+  JWT_SECRET: process.env.JWT_SECRET || "your-secret-key",
 };

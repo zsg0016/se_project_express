@@ -18,12 +18,13 @@ const errors = {
   ITEM_DELETE_FORBIDDEN: "You do not have permission to delete this item",
   ITEM_LIKE_ERROR: "Could not like item",
   ITEM_DISLIKE_ERROR: "Could not dislike item",
-  INVALID_ITEM_ID: "Username or Email is incorrect",
-  INVALID_EMAIL: "Invalid email address",
   INVALID_PASSWORD: "Invalid password",
   DUPLICATE_EMAIL: "Email already exists",
+  INTERNAL_SERVER_ERROR: "An internal server error occurred",
+  INVALID_EMAIL: "You must enter a valid email address",
   LOGIN_FAILED: "Login failed: Invalid email or password",
   UNAUTHORIZED: "Authorization required",
+  MISSING_FIELDS: "Email and password are required",
 };
 
 const HTTP_STATUS_CODES = {

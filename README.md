@@ -18,3 +18,8 @@
 `npm run start` — to launch the server
 
 `npm run dev` — to launch the server with the hot reload feature
+
+## Project Pitch Video
+
+Check out [this video](https://drive.google.com/file/d/1mxCm5xtZs7BqKsozpO2-diVfCcYYd1qs/view?usp=sharing), where I describe my
+project and some challenges I faced while building it.

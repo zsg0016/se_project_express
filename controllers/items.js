@@ -3,6 +3,7 @@ const { errors } = require("../utils/errors");
 const { HTTP_STATUS_CODES } = require("../utils/errors");
 
 const getItems = (req, res) => {
+  const itemId = req.itemId && (req.user._id ?? req.user);
   Item.find({})
     .then((items) => res.status(HTTP_STATUS_CODES.OK).send(items))
     .catch((error) => {
@@ -15,7 +16,12 @@ const getItems = (req, res) => {
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
-  Item.create({ name, weather, imageUrl, owner: req.user._id })
+  Item.create({
+    name: name,
+    weather: weather,
+    imageUrl: imageUrl,
+    owner: req.user._id,
+  })
     .then((item) => res.status(HTTP_STATUS_CODES.CREATED).send(item))
     .catch((error) => {
       console.error(error);
@@ -38,17 +44,23 @@ const createItem = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
-  if (req.user._id.toString() !== req.item.owner.toString()) {
-    return res
-      .status(HTTP_STATUS_CODES.FORBIDDEN)
-      .send({ message: errors.ITEM_DELETE_FORBIDDEN });
-  }
   const { itemId } = req.params;
-  Item.findByIdAndDelete(itemId)
+  Item.findById(itemId)
     .orFail()
-    .then(() =>
-      res.status(HTTP_STATUS_CODES.OK).send({ message: errors.ITEM_DELETED })
-    )
+    .then((item) => {
+      if (req.user._id.toString() !== item.owner.toString()) {
+        return res
+          .status(HTTP_STATUS_CODES.FORBIDDEN)
+          .send({ message: errors.ITEM_DELETE_FORBIDDEN });
+      }
+      return Item.findByIdAndDelete(itemId)
+        .orFail()
+        .then(() =>
+          res
+            .status(HTTP_STATUS_CODES.OK)
+            .send({ message: errors.ITEM_DELETED })
+        );
+    })
     .catch((error) => {
       console.error(error);
       if (error.name === "DocumentNotFoundError") {
