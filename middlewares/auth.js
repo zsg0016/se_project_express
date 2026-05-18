@@ -6,9 +6,10 @@ const { JWT_SECRET } = require("../utils/config");
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith("Bearer ")) {
-    return res
+    res
       .status(HTTP_STATUS_CODES.UNAUTHORIZED)
       .send({ message: errors.UNAUTHORIZED });
+    return;
   }
   const token = authorization.replace("Bearer ", "");
   let payload;
@@ -17,7 +18,7 @@ module.exports = (req, res, next) => {
     req.user = payload;
     next();
   } catch (error) {
-    return res
+    res
       .status(HTTP_STATUS_CODES.UNAUTHORIZED)
       .send({ message: errors.UNAUTHORIZED });
   }

@@ -1,9 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-const { errors } = require("../utils/errors");
-const jwt = require("jsonwebtoken");
 const bycrypt = require("bcryptjs");
-const { JWT_SECRET } = require("../utils/config");
+const { errors } = require("../utils/errors");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -52,10 +50,7 @@ userSchema.statics.findUserByCredentials = function (email, password) {
         if (!matched) {
           return Promise.reject(new Error(errors.LOGIN_FAILED));
         }
-        const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-          expiresIn: "7d",
-        });
-        return token;
+        return user;
       });
     })
     .catch((error) => {

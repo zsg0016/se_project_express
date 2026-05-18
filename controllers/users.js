@@ -1,15 +1,15 @@
 const bycrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { errors } = require("../utils/errors");
 const { HTTP_STATUS_CODES } = require("../utils/errors");
+const { JWT_SECRET } = require("../utils/config");
 
 const getCurrentUser = (req, res) => {
   const userId = req.user._id;
   User.findById(userId)
     .orFail()
-    .then((user) => {
-      res.status(HTTP_STATUS_CODES.OK).send(user);
-    })
+    .then((user) => res.status(HTTP_STATUS_CODES.OK).send(user))
     .catch((error) => {
       console.error(error);
       if (error.name === "DocumentNotFoundError") {
@@ -31,28 +31,28 @@ const getCurrentUser = (req, res) => {
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
   console.log("Request body:", req.body);
-  bycrypt
+  if (!email || !password) {
+    return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
+      message: errors.MISSING_FIELDS,
+    });
+  }
+  return bycrypt
     .hash(password, 10)
-    .then((hashedPassword) => {
-      return User.create({
-        name: name,
-        avatar: avatar,
-        email: email,
+    .then((hashedPassword) =>
+      User.create({
+        name,
+        avatar,
+        email,
         password: hashedPassword,
-      });
-    })
+      })
+    )
     .then((user) => {
       const userObj = user.toObject();
       delete userObj.password;
-      res.status(HTTP_STATUS_CODES.CREATED).send(userObj);
+      return res.status(HTTP_STATUS_CODES.CREATED).send(userObj);
     })
     .catch((error) => {
       console.error(error);
-      if (!email || !password) {
-        return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
-          message: errors.MISSING_FIELDS,
-        });
-      }
       if (error.message === errors.NAME_ERROR) {
         return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
           message: errors.NAME_ERROR,
@@ -83,7 +83,10 @@ const createUser = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
-    .then((token) => {
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
       res.status(HTTP_STATUS_CODES.OK).send({ token });
     })
     .catch((error) => {

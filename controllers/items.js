@@ -3,7 +3,6 @@ const { errors } = require("../utils/errors");
 const { HTTP_STATUS_CODES } = require("../utils/errors");
 
 const getItems = (req, res) => {
-  const itemId = req.itemId && (req.user._id ?? req.user);
   Item.find({})
     .then((items) => res.status(HTTP_STATUS_CODES.OK).send(items))
     .catch((error) => {
@@ -17,9 +16,9 @@ const getItems = (req, res) => {
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
   Item.create({
-    name: name,
-    weather: weather,
-    imageUrl: imageUrl,
+    name,
+    weather,
+    imageUrl,
     owner: req.user._id,
   })
     .then((item) => res.status(HTTP_STATUS_CODES.CREATED).send(item))
