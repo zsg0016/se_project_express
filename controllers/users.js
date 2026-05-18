@@ -3,19 +3,8 @@ const User = require("../models/user");
 const { errors } = require("../utils/errors");
 const { HTTP_STATUS_CODES } = require("../utils/errors");
 
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.status(HTTP_STATUS_CODES.OK).send(users))
-    .catch((error) => {
-      console.error(error);
-      return res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .send({ message: errors.USERS_NOT_FOUND });
-    });
-};
-
 const getCurrentUser = (req, res) => {
-  const userId = req.user && (req.user._id ?? req.user);
+  const userId = req.user._id;
   User.findById(userId)
     .orFail()
     .then((user) => {
@@ -35,7 +24,7 @@ const getCurrentUser = (req, res) => {
       }
       return res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .send({ message: errors.USER_NOT_FOUND });
+        .send({ message: errors.INTERNAL_SERVER_ERROR });
     });
 };
 
@@ -112,7 +101,7 @@ const login = (req, res) => {
 
 const updateUser = (req, res) => {
   const { name, avatar } = req.body;
-  const userId = req.user && (req.user._id ?? req.user);
+  const userId = req.user._id;
   User.findByIdAndUpdate(
     userId,
     { name, avatar },
@@ -139,7 +128,6 @@ const updateUser = (req, res) => {
 };
 
 module.exports = {
-  getUsers,
   getCurrentUser,
   createUser,
   login,

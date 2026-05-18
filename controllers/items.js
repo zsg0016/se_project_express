@@ -10,7 +10,7 @@ const getItems = (req, res) => {
       console.error(error);
       return res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .send({ message: errors.ITEMS_NOT_FOUND });
+        .send({ message: errors.INTERNAL_SERVER_ERROR });
     });
 };
 
