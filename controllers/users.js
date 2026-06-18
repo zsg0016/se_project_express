@@ -4,6 +4,13 @@ const User = require("../models/user");
 const { errors } = require("../utils/errors");
 const { HTTP_STATUS_CODES } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
+const {
+  NotFoundError,
+  ConflictError,
+  BadRequestError,
+  UnauthorizedError,
+  ForbiddenError,
+} = require("../utils/error-constructors");
 
 const getCurrentUser = (req, res) => {
   const userId = req.user._id;
@@ -11,31 +18,22 @@ const getCurrentUser = (req, res) => {
     .orFail()
     .then((user) => res.status(HTTP_STATUS_CODES.OK).send(user))
     .catch((error) => {
-      console.error(error);
+      let err;
       if (error.name === "DocumentNotFoundError") {
-        return res
-          .status(HTTP_STATUS_CODES.NOT_FOUND)
-          .send({ message: errors.USER_NOT_FOUND });
+        err = new NotFoundError(errors.USER_NOT_FOUND);
       }
       if (error.name === "CastError") {
-        return res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .send({ message: errors.INVALID_USER_ID });
+        err = new BadRequestError(errors.INVALID_USER_ID);
       }
-      return res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .send({ message: errors.INTERNAL_SERVER_ERROR });
+      if (err === undefined) err = new Error(errors.INTERNAL_SERVER_ERROR);
+      next(err);
     });
 };
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
   console.log("Request body:", req.body);
-  if (!email || !password) {
-    return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
-      message: errors.MISSING_FIELDS,
-    });
-  }
+  let err;
   return bycrypt
     .hash(password, 10)
     .then((hashedPassword) =>
@@ -52,31 +50,23 @@ const createUser = (req, res) => {
       return res.status(HTTP_STATUS_CODES.CREATED).send(userObj);
     })
     .catch((error) => {
-      console.error(error);
+      if (!email || !password) {
+        err = new BadRequestError(errors.MISSING_FIELDS);
+      }
       if (error.message === errors.NAME_ERROR) {
-        return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
-          message: errors.NAME_ERROR,
-        });
+        err = new BadRequestError(errors.NAME_ERROR);
       }
       if (error.code === 11000) {
-        return res
-          .status(HTTP_STATUS_CODES.CONFLICT)
-          .send({ message: errors.DUPLICATE_EMAIL });
+        err = new ConflictError(errors.DUPLICATE_EMAIL);
       }
       if (error.name === "ValidationError") {
         if (error.errors && error.errors.name) {
-          return res
-            .status(HTTP_STATUS_CODES.BAD_REQUEST)
-            .send({ message: errors.NAME_ERROR });
+          err = new BadRequestError(errors.NAME_ERROR);
         }
-        return res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .send({ message: errors.USER_VALIDATION_ERROR });
+        err = new BadRequestError(errors.USER_VALIDATION_ERROR);
       }
-
-      return res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .send({ message: errors.USER_NOT_CREATED });
+      if (err === undefined) err = new Error(errors.USER_NOT_CREATED);
+      next(err);
     });
 };
 
@@ -90,15 +80,12 @@ const login = (req, res) => {
       res.status(HTTP_STATUS_CODES.OK).send({ token });
     })
     .catch((error) => {
-      console.error(error);
+      let err;
       if (!email || !password) {
-        return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
-          message: errors.MISSING_FIELDS,
-        });
+        err = new BadRequestError(errors.MISSING_FIELDS);
       }
-      return res
-        .status(HTTP_STATUS_CODES.UNAUTHORIZED)
-        .send({ message: errors.LOGIN_FAILED });
+      if (err === undefined) err = new UnauthorizedError(errors.LOGIN_FAILED);
+      next(err);
     });
 };
 
@@ -113,20 +100,15 @@ const updateUser = (req, res) => {
     .orFail()
     .then((user) => res.status(HTTP_STATUS_CODES.OK).send(user))
     .catch((error) => {
-      console.error(error);
+      let err;
       if (error.name === "DocumentNotFoundError") {
-        return res
-          .status(HTTP_STATUS_CODES.NOT_FOUND)
-          .send({ message: errors.USER_NOT_FOUND });
+        err = new NotFoundError(errors.USER_NOT_FOUND);
       }
       if (error.name === "ValidationError") {
-        return res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .send({ message: errors.USER_VALIDATION_ERROR });
+        err = new BadRequestError(errors.USER_VALIDATION_ERROR);
       }
-      return res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .send({ message: errors.USER_NOT_FOUND });
+      if (err === undefined) err = new Error(errors.USERS_NOT_FOUND);
+      next(err);
     });
 };
 
