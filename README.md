@@ -21,7 +21,7 @@
 
 ## Project Pitch Video
 
-Check out [this video](https://drive.google.com/file/d/1mxCm5xtZs7BqKsozpO2-diVfCcYYd1qs/view?usp=sharing), where I describe my
+Check out [this video](https://drive.google.com/file/d/1am7vqsY7s7Rn7Wlg8Ol1rOYOBBZ8O8TW/view?usp=sharing), where I describe my
 project and some challenges I faced while building it.
 
 ## Domain Name
