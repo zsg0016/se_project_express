@@ -4,15 +4,13 @@ const User = require("../models/user");
 const { errors } = require("../utils/errors");
 const { HTTP_STATUS_CODES } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
-const {
-  NotFoundError,
-  ConflictError,
-  BadRequestError,
-  UnauthorizedError,
-  ForbiddenError,
-} = require("../utils/error-constructors");
 
-const getCurrentUser = (req, res) => {
+const { NotFoundError } = require("../errors/NotFoundError");
+const { BadRequestError } = require("../errors/BadRequestError");
+const { ConflictError } = require("../errors/ConflictError");
+const { UnauthorizedError } = require("../errors/UnauthorizedError");
+
+const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   User.findById(userId)
     .orFail()
@@ -30,7 +28,7 @@ const getCurrentUser = (req, res) => {
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
   console.log("Request body:", req.body);
   let err;
@@ -70,7 +68,7 @@ const createUser = (req, res) => {
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
@@ -79,7 +77,7 @@ const login = (req, res) => {
       });
       res.status(HTTP_STATUS_CODES.OK).send({ token });
     })
-    .catch((error) => {
+    .catch(() => {
       let err;
       if (!email || !password) {
         err = new BadRequestError(errors.MISSING_FIELDS);
@@ -89,7 +87,7 @@ const login = (req, res) => {
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, avatar } = req.body;
   const userId = req.user._id;
   User.findByIdAndUpdate(

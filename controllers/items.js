@@ -1,13 +1,10 @@
 const Item = require("../models/item");
 const { errors } = require("../utils/errors");
 const { HTTP_STATUS_CODES } = require("../utils/errors");
-const {
-  NotFoundError,
-  ConflictError,
-  BadRequestError,
-  UnauthorizedError,
-  ForbiddenError,
-} = require("../utils/error-constructors");
+
+const { NotFoundError } = require("../errors/NotFoundError");
+const { BadRequestError } = require("../errors/BadRequestError");
+const { ForbiddenError } = require("../errors/ForbiddenError");
 
 const getItems = (req, res, next) => {
   Item.find({})
@@ -17,7 +14,7 @@ const getItems = (req, res, next) => {
     });
 };
 
-const createItem = (req, res) => {
+const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   Item.create({
     name,
@@ -41,7 +38,7 @@ const createItem = (req, res) => {
     });
 };
 
-const deleteItem = (req, res) => {
+const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
   let err;
   Item.findById(itemId)
@@ -70,7 +67,7 @@ const deleteItem = (req, res) => {
     });
 };
 
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   const { itemId } = req.params;
   Item.findByIdAndUpdate(
     itemId,
@@ -94,7 +91,7 @@ const likeItem = (req, res) => {
     });
 };
 
-const dislikeItem = (req, res) => {
+const dislikeItem = (req, res, next) => {
   const { itemId } = req.params;
   Item.findByIdAndUpdate(
     itemId,
